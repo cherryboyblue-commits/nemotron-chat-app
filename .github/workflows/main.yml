@@ -29,16 +29,17 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
-        pip install --upgrade pip
+        pip install "pip<24.1" "setuptools<70.0.0"
         pip install "cython==0.29.33" "buildozer==1.5.0"
 
-    - name: Build APK
+    - name: Build APK with Fixed Pip Version
       run: |
-        # Ensure buildozer.spec auto-accepts SDK licenses
+        # Auto-accept SDK licenses
         echo "" >> buildozer.spec
         echo "android.accept_sdk_license = True" >> buildozer.spec
         
-        # Force buildozer to use Cython 0.29.33 for Kivy compilation
+        # Lock pip inside p4a build step
+        export PIP_NO_BUILD_ISOLATION=1
         buildozer -v android debug
 
     - name: Upload APK Artifact
