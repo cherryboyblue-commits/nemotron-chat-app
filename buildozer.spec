@@ -121,7 +121,7 @@ android.permissions = INTERNET,ACCESS_NETWORK_STATE
 # android.skip_update = False
 
 # (bool) If True, then automatically accept SDK license
-# android.accept_sdk_license = False
+android.accept_sdk_license = True
 
 # (str) Android entry point, default is ok for Kivy-based app
 #android.entrypoint = org.kivy.android.PythonActivity
