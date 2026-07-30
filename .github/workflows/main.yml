@@ -13,6 +13,13 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
+    - name: Free Disk Space
+      run: |
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /opt/ghc
+        sudo rm -rf "/usr/local/share/boost"
+        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
@@ -25,14 +32,11 @@ jobs:
         pip install --upgrade pip
         pip install "cython==0.29.33" buildozer
 
-    - name: Force Enable SDK License in buildozer.spec & Build
+    - name: Build APK with Buildozer
+      env:
+        APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
       run: |
-        # Append the setting directly to buildozer.spec on the runner
-        echo "" >> buildozer.spec
-        echo "android.accept_sdk_license = True" >> buildozer.spec
-        
-        # Run buildozer with piped confirmation
-        yes | buildozer -v android debug
+        buildozer -v android debug
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
