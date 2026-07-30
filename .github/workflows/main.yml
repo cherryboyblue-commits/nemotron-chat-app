@@ -34,8 +34,12 @@ jobs:
 
     - name: Build APK with Buildozer
       env:
-        APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
+        APP_ANDROID_ACCEPT_SDK_LICENSE: "True"
       run: |
+        # Explicitly append setting to buildozer.spec as boolean
+        echo "" >> buildozer.spec
+        echo "android.accept_sdk_license = True" >> buildozer.spec
+        
         buildozer -v android debug
 
     - name: Upload APK Artifact
