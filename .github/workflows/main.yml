@@ -32,15 +32,14 @@ jobs:
         pip install --upgrade pip
         pip install "cython==0.29.33" buildozer
 
-    - name: Build APK with Buildozer
-      env:
-        APP_ANDROID_ACCEPT_SDK_LICENSE: "True"
+    - name: Build APK with Debug Logging
       run: |
-        # Explicitly append setting to buildozer.spec as boolean
+        # Append settings directly to buildozer.spec
         echo "" >> buildozer.spec
         echo "android.accept_sdk_license = True" >> buildozer.spec
         
-        buildozer -v android debug
+        # Run buildozer with log_level = 2 (DEBUG)
+        buildozer -v android debug --log_level=2
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
