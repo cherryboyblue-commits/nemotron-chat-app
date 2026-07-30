@@ -1,2 +1,8 @@
 .buildozer/
 bin/
+.aider/
+.cache/
+.kivy/
+.local/
+*.pyc
+__pycache__/
