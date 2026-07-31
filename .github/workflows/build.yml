@@ -11,11 +11,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build APK with Buildozer
-        uses: digreatbrian/buildozer-action@v2
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.11
-          buildozer-cmd: buildozer -v android debug
+          python-version: "3.11"
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential ccache git libncurses5:i386 zip unzip zlib1g-dev openjdk-17-jdk
+          pip install --upgrade pip setuptools buildozer cython
+
+      - name: Build APK with 16 KB Page Alignment
+        env:
+          CFLAGS: "-O2 -Wl,-z,max-page-size=16384"
+          CXXFLAGS: "-O2 -Wl,-z,max-page-size=16384"
+          LDFLAGS: "-Wl,-z,max-page-size=16384"
+          APP_ANDROID_P4A_EXTRA_ARGS: "--cflags='-Wl,-z,max-page-size=16384' --ldflags='-Wl,-z,max-page-size=16384'"
+        run: |
+          buildozer -v android debug
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
