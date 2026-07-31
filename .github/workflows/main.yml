@@ -1,49 +1,46 @@
 name: Build Android APK
 
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Free Disk Space
-      run: |
-        sudo rm -rf /usr/share/dotnet
-        sudo rm -rf /opt/ghc
-        sudo rm -rf "/usr/local/share/boost"
-        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+      - name: Free Disk Space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
 
-    - name: Install System Dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
-        pip install "pip<24.1" "setuptools<70.0.0"
-        pip install "cython==0.29.33" "buildozer==1.5.0"
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
 
-    - name: Build APK with Fixed Pip Version
-      run: |
-        # Auto-accept SDK licenses
-        echo "" >> buildozer.spec
-        echo "android.accept_sdk_license = True" >> buildozer.spec
-        
-        # Lock pip inside p4a build step
-        export PIP_NO_BUILD_ISOLATION=1
-        buildozer -v android debug
+      - name: Build APK with Fixed Pip & NDK
+        run: |
+          python -m pip install --upgrade "pip<24.1" "setuptools<70.0.0" "wheel" "cython==0.29.33" "buildozer==1.5.0"
+          
+          # Force NDK 25b in buildozer.spec directly before building
+          sed -i 's/^#\?\s*android.ndk_path.*/android.ndk_path =/' buildozer.spec
+          sed -i 's/^#\?\s*android.ndk =.*/android.ndk = 25b/' buildozer.spec
+          
+          buildozer -v android debug
+        env:
+          ACCEPT_BUILD_TOOLS_CHECKSUM: "true"
 
-    - name: Upload APK Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: Nemotron-APK
-        path: bin/*.apk
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: bin/*.apk
