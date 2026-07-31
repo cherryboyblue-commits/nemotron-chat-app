@@ -34,10 +34,15 @@ jobs:
           # Force NDK 25b in buildozer.spec directly before building
           sed -i 's/^#\?\s*android.ndk_path.*/android.ndk_path =/' buildozer.spec
           sed -i 's/^#\?\s*android.ndk =.*/android.ndk = 25b/' buildozer.spec
+
+          # Prevent p4a from upgrading pip to broken 3.14 versions internally
+          export PIP_CONSTRAINT=/tmp/constraints.txt
+          echo "pip<24.1" > /tmp/constraints.txt
           
           buildozer -v android debug
         env:
           ACCEPT_BUILD_TOOLS_CHECKSUM: "true"
+          PIP_CONSTRAINT: "/tmp/constraints.txt"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
