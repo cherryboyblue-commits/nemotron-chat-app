@@ -1,6 +1,10 @@
 name: Build Android APK
 
-on: [push, workflow_dispatch]
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   build:
@@ -9,12 +13,6 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
-      - name: Free Disk Space
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -26,28 +24,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y git zip unzip openjdk-17-jdk autoconf automake libtool libltdl-dev pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo6 cmake libffi-dev libssl-dev
 
-      - name: Build APK with Fixed Pip & NDK
-        run: |
-          python -m pip install --upgrade "pip<24.1" "setuptools<70.0.0" "wheel" "cython==0.29.33" "buildozer==1.5.0"
-          
-          # Force NDK 25b in buildozer.spec
-          sed -i 's/^#\?\s*android.ndk_path.*/android.ndk_path =/' buildozer.spec
-          sed -i 's/^#\?\s*android.ndk =.*/android.ndk = 25b/' buildozer.spec
-
-          # Intercept pip upgrades inside p4a venv
-          mkdir -p /tmp/bin
-          cat << 'PYEOF' > /tmp/bin/pip
-#!/usr/bin/env bash
-if [[ "$*" == *"install -U pip"* ]] || [[ "$*" == *"install --upgrade pip"* ]]; then
-    echo "Intercepted pip upgrade request to keep build stable."
-    exit 0
-fi
-exec python -m pip "$@"
-PYEOF
-          chmod +x /tmp/bin/pip
-          export PATH="/tmp/bin:$PATH"
-          
-          buildozer -v android debug
+      - name: Run Build Script
+        run: ./build.sh
         env:
           ACCEPT_BUILD_TOOLS_CHECKSUM: "true"
 
