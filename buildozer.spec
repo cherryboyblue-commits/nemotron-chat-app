@@ -272,7 +272,8 @@ android.allow_backup = True
 #p4a.setup_py_handling = infer
 
 # (str) extra command line arguments to pass when invoking pythonforandroid.toolchain
-#p4a.extra_args =
+#p4a.extra_args = --ldflags="-Wl,-z,max-page-size=16384"
+p4a.extra_args =
 
 
 #
