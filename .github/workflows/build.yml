@@ -23,12 +23,9 @@ jobs:
           pip install --upgrade pip setuptools buildozer cython
 
       - name: Build APK with 16 KB Page Alignment
-        env:
-          CFLAGS: "-O2 -Wl,-z,max-page-size=16384"
-          CXXFLAGS: "-O2 -Wl,-z,max-page-size=16384"
-          LDFLAGS: "-Wl,-z,max-page-size=16384"
-          APP_ANDROID_P4A_EXTRA_ARGS: "--cflags='-Wl,-z,max-page-size=16384' --ldflags='-Wl,-z,max-page-size=16384'"
         run: |
+          # Clean p4a build cache to force re-compilation of recipes with new p4a flags
+          buildozer android clean
           buildozer -v android debug
 
       - name: Upload APK Artifact

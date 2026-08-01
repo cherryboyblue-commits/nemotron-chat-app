@@ -273,7 +273,7 @@ android.allow_backup = True
 
 # (str) extra command line arguments to pass when invoking pythonforandroid.toolchain
 #p4a.extra_args = --ldflags="-Wl,-z,max-page-size=16384"
-p4a.extra_args =
+p4a.extra_args = --cflags="-Wl,-z,max-page-size=16384" --ldflags="-Wl,-z,max-page-size=16384"
 
 
 #
